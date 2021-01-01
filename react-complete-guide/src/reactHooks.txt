@@ -1,0 +1,108 @@
+Sources:
+https://codeburst.io/how-to-use-react-lifecycle-methods-ddc79699b34e
+https://daveceddia.com/where-fetch-data-componentwillmount-vs-componentdidmount/
+https://medium.com/@kristin_baumann/hi-you-can-call-setstate-in-the-lifecycle-methods-componentwillupdate-and-componentdidupdate-2239ce815e3f
+
+MOUNT
+1. componentWillMount() - not recommended.
+    - In place of it, you can use the constructor in a class component.
+    - An API call with fetch or axios inside componentWillMount will not return before the first render.
+    This means the component will render with empty data at least once.
+    - Because of the nature of async events in JavaScript,
+    when you kick off an API call, the browser goes back to doing other work in the meantime. When React is rendering a component,
+    it doesn’t wait for componentWillMount to finish whatever it started - React marches on and continues to render.
+
+    - Whenever React renders a component, it’s going to call componentWillMount first.
+    Note that this method is only called once in a life of a component, and this is right before it is initially.
+    Therefore, there is no access to the DOM.
+    - State: You can use this.setState(…) inside this method.
+    However, be aware that it may not trigger a re-rendering when you set the state synchronously.
+    If you can, I would suggest to set the default state inside the constructor instead of setting the state here.
+    - Note: Because componentWillMount is called before the render() method, this is the only lifecycle method that is called on the server side, when you use serverside rendering.
+    Alternatively to this lifecycle hook, the React docs recommend using the constructor instead.
+
+2. componentDidMount() - OK
+    - By the time componentDidMount is called, the component has been rendered once.
+    - In practice, componentDidMount is the best place to put calls to fetch data, for two reasons:
+        + Using didMount makes it clear that data won’t be loaded until after the initial render.
+        This reminds you to set up initial state properly, so you don’t end up with undefined state that causes errors.
+        + If you ever need to render your app on the server (a.k.a. server-side-rendering/SSR with Next.js or similar),
+        componentWillMount will actually be called twice – once on the server, and again on the client – which is probably not what you want.
+        Putting your API call code in componentDidMount will ensure that data is only fetched from the client, where it should be.
+
+    - Whenever this method is called, React has already rendered our component and put it into the DOM.
+    Therefore, if there is any initialization you want to perform that relies on the DOM, do it here and now.
+    - State: You can set the state with this.setState().
+    Whenever you do this, it will also trigger a re-render of the component.
+    - Use Cases: You can use componentDidMount to fetch data from a server with AJAX calls.
+    Also if you need to initialize anything that relies on the DOM, you can do this here (e.g. initializing third party libraries like D3).
+    And last but not least, you can add event listeners inside componentDidMount.
+
+UPDATED
+1. componentWillUpdate(nextProps, nextState) - not recommended.
+    - componentWillUpdate is invoked just before rendering when new props or state are being received.
+    Use this as an opportunity to perform preparation before an update occurs.
+    This method is not called for the initials render.
+    - This event hook is basically componentWillReceiveProps, but worse. It happens just before render, but you can’t use this.setState().
+    - It is useful though, because it gives you control to manipulate the component just before it receives new props or state.
+    I would use it mostly for animations, because it allows you to predefine some initial conditions for DOM nodes.
+    - This method could be replaced by componentDidUpdate() according to React docs.
+    If you were reading from the DOM in this method (e.g. to save a scroll position), you can move that logic to getSnapshotBeforeUpdate().
+
+    - This method is invoked right before rendering. 
+    Like shouldComponentUpdate, it is called whenever new props are passed to the component, or the state is changed.
+    This method is not called for the initial render.
+    - State: You can’t call setState here. Again, if you want to set the state because of changing props, use componentWillReceiveProps instead.
+    - Use Cases: You can perform preparations that need to be done before updating the component.
+    This lifecycle method is called right before render(), so you should not do anything that relies on the DOM — it will soon be outdated.
+    Common use cases seem to be: set a variable based on state changes, dispatching events, starting animations
+
+2. componentDidUpdate(prevProps, prevState, snapshot) - OK
+    - Everything went well, and React updated our component.
+    Directly after rendering, React also calls componentDidUpdate.
+    This method is not called for the initial render.
+    - State: You can use setState here.
+    - Use Cases: If there is something you have to do with the DOM right after the component has been updated, this is the time and place for it.
+    A good example for this would be the update of a 3rd party UI library like D3 to pass on the new data.
+    It is also a good place to perform network requests, as long as you compare the current state/props with the previous state/props to avoid unnecessary network requests.
+
+
+UNMOUNT
+1. componentWillUnmount() - OK
+2. componentDidUnmount - ?
+
+
+OTHERS
+1. getSnapshotBeforeUpdate(prevProps, prevState)
+
+2. componentWillReceiveProps(nextProps)
+
+3. shouldComponentUpdate(nextState, nextProps)
+    - By default, this method is not implemented, so every update of state or props causes a render, even if the props didn’t change.
+    However, if you want to avoid possible unnecessary renders, you could handle this here.
+    Returning false means, that React will not execute componentWillUpdate(), render() and componentDidUpdate().
+    This method is not called for the initial render.
+    - Note: According to the React docs, React may treat shouldComponentUpdate like a hint instead of strictly following it’s return value. This means, it could be possible that the method returns false but React still decides to re-render the component.
+    - State: You can’t call setState here.
+    Also, it wouldn’t make much sense to do so.
+    If you want to set the state because of changing props, use componentWillReceiveProps instead.
+    - Use Case: As already mentioned, you can check, if the update of props or state really affects the output of the component. To do so, you could do a comparison of the current props/state to the next props/state.
+    If the component shouldn’t update, just return false and the component won’t update.
+    - Note: This might lead to serious side effects. React also provides another solution for this use case:
+    If you notice that a certain component is slow, you can inherit it from React.PureComponent instead of React.Component.
+    It will perform a shallow comparison for props and state, which might work for most of the use cases I can imagine right now.
+
+
+React Component Lifecycle Summary
+
+I hope I could give you a short overview of the life of a React component and the calling order of lifecycle methods. 
+Just for a compact overview, here’s a list of all lifecycle methods in the correct order:
+    1. componentWillMount
+    2. componentDidMount
+    3. componentWillReceiveProps
+    4. shouldComponentUpdate
+    5. componentWillUpdate
+    6. componentDidUpdate
+    7. componentWillUnmount
+
+You can see, they’re not that many. However, it is important that you choose the right one for different use cases to prevent side effects or errors.
