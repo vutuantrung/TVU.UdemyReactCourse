@@ -2,6 +2,7 @@ Sources:
 https://codeburst.io/how-to-use-react-lifecycle-methods-ddc79699b34e
 https://daveceddia.com/where-fetch-data-componentwillmount-vs-componentdidmount/
 https://medium.com/@kristin_baumann/hi-you-can-call-setstate-in-the-lifecycle-methods-componentwillupdate-and-componentdidupdate-2239ce815e3f
+https://blog.pusher.com/beginners-guide-react-component-lifecycle/
 
 MOUNT
 1. componentWillMount() - not recommended.

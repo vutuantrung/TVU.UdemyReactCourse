@@ -6,16 +6,19 @@ const Cockpit = (props) => {
 
   // The second array point at all the varaibles or all the data that actually a sudes in your effect
   useEffect(() => {
-    setTimeout(() => {
-      alert('[Cockpit.js] 1st useEffect.');
+    const timer = setTimeout(() => {
+      alert('[Cockpit.js] componentDidMount once.');
     }, 1000);
+
     return () => {
+      // If we run some cleaning method in componentWillMount => it will cancel the method in componentDidMount
+      clearTimeout(timer);
       console.log('[Cockpit.js] 1st componentWillUnmount.');
     }
   }, []);
 
   useEffect(() => {
-    console.log('[Cockpit.js] 2nd useEffect.')
+    console.log('[Cockpit.js] componentDidMount continually.')
     return () => {
       console.log('[Cockpit.js] 2nd componentWillUnmount.');
     }
@@ -27,10 +30,10 @@ const Cockpit = (props) => {
     btnClass = classes.Red;
   }
 
-  if (props.persons.length <= 2) {
+  if (props.personsLength <= 2) {
     assignedClasses.push(classes.red); // classes = ['red']
   }
-  if (props.persons.length <= 1) {
+  if (props.personsLength <= 1) {
     assignedClasses.push(classes.bold); // classes = ['red', 'bold']
   }
 
@@ -45,4 +48,4 @@ const Cockpit = (props) => {
   );
 };
 
-export default Cockpit;
+export default React.memo(Cockpit);
