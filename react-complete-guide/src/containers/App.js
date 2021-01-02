@@ -13,7 +13,7 @@ class App extends Component {
 
   state = {
     persons: [
-      { id: 'asfa1', name: 'Max', age: 28 },
+      { id: 'asfa1', name: 'Max', age: "28" },
       { id: 'vasdf1', name: 'Manu', age: 29 },
       { id: 'asdf11', name: 'Stephanie', age: 26 }
     ],
@@ -61,7 +61,9 @@ class App extends Component {
     const persons = [...this.state.persons];
     persons[personIndex] = person;
 
-    this.setState({ persons: persons });
+    this.setState((prevState, props) => {
+      return { persons: persons }
+    });
   };
 
   deletePersonHandler = personIndex => {
