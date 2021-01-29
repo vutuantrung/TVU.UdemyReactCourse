@@ -4,6 +4,7 @@ import classes from './App.module.css';
 import Persons from '../components/Persons/Persons';
 import Cockpit from '../components/Cockpit/Cockpit';
 import WithClass from '../components/hoc/WithClass';
+import { AuthProvider } from '../context/auth-context';
 
 class App extends Component {
   constructor(props) {
@@ -13,13 +14,14 @@ class App extends Component {
 
   state = {
     persons: [
-      { id: 'asfa1', name: 'Max', age: "28" },
+      { id: 'asfa1', name: 'Max', age: 28 },
       { id: 'vasdf1', name: 'Manu', age: 29 },
       { id: 'asdf11', name: 'Stephanie', age: 26 }
     ],
     otherState: 'some other value',
     showPersons: false,
     showCockpit: true,
+    authenticated: false,
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -83,6 +85,10 @@ class App extends Component {
     this.setState({ showCockpit: !doesShow });
   };
 
+  loginHandler = (prevState, props) => {
+    this.setState({ authenticated: !prevState.authenticated })
+  }
+
   render() {
     console.log('[App.js] render');
 
@@ -106,8 +112,10 @@ class App extends Component {
     return (
       <WithClass class={classes.App}>
         <button onClick={this.toggleCockpitHandler}>Remove Cockpit</button>
-        {cockpit}
-        {persons}
+        <AuthProvider value={{ authenticated: false, login: this.loginHandler }}>
+          {cockpit}
+          {persons}
+        </AuthProvider>
       </WithClass>
     );
     // return React.createElement('div', {className: 'App'}, React.createElement('h1', null, 'Does this work now?'));

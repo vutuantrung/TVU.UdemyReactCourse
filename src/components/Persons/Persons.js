@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import Person from './Person/Person';
 
+
 class Persons extends Component {
   // This method initialize state from props
   // static getDerivedStateFromProps(props, state) {
